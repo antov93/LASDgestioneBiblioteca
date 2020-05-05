@@ -15,15 +15,8 @@
 #include "listaLibro.h"
 
 
-typedef struct{
-	char matricola[9];
-	char nome[50];
-	char cognome[50];
-}Studente;
-
-
 int main(void) {
 	creaListaLibri();
-	menu	();
+	menu();
 	return EXIT_SUCCESS;
 }
