@@ -48,26 +48,38 @@ void menuBiblioteca();
 
 char* login();
 char* registrazione();
-
+void risolviRichiesteStudente(char *s);
 void creaListaLibri();
+void pausa();
+
 void visualizzaListaLibri();
 void aggiungiLibro(Libro l);
 void stampaPrestati(char *s);
 void stampaLibro(int n);
 void restituisciLibro(char *s);
+int controlloDisponibilitaLibro(int n);
+int controlloPrenotazioniLibro(int n);
+int impostaDisponibilitaLibro(int n);
+void controlloPrenotazioneLibroStudente(int n,char *s);
 
 void visualizzaListaStudenti();
 void aggiungiStudente(Studente s);
 int cercaStudente(char *s);
+void risolviRichiesteStudente(char *s);
 
-int controlloPrenotazioni(char *s);
 void gestisciPrenotazioni(char *s);
+void aggiungiPrenotazione(Prestito p);
+void rimuoviPrenotazione(Prestito p);
+void impostaPrenotato(int n,char *s);
+int controlloPrenotazioniStudente(char *s);
+void visualizzaListaPrenotazioni();
+void stampaPrenotazioniStudente(char *s);
 
 void visualizzaListaPrestiti();
 void richiestaPrestito(char *s);
 void approvaPrestito(int n,char *s);
 void aggiungiPrestito(Prestito p);
-int controlloPrestiti(char *s);
+int controlloPrestitiStudente(char *s);
 void rimuoviPrestito(char *s,int n);
 
 int eliminaNewLine(char *s);
