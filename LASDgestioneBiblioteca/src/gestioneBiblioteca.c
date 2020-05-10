@@ -22,11 +22,11 @@ struct elementoPrestito *listaPrestiti;
 void menuBiblioteca(){
 	int scelta=0;
 	int esco=0;
+	char comando[1];
 	char* matricola=malloc(sizeof(char));
 
 	while(esco!=1){
 		system("clear");
-
 		printf("\n----BENVENUTO in BIBLIOTECA----\n");
 		printf("\nDi cosa hai bisogno?\n");
 		printf("1-Richiedi libro in prestito.\n"
@@ -34,44 +34,48 @@ void menuBiblioteca(){
 			   "3-Esci.\n"
 			   "4-Amministrazione.\n");
 		printf("scelta >");
-		scanf("%d",&scelta);
-
+		scanf("%s",comando);
+		scelta=comando[0];
 		switch(scelta){
-			case 1:
+			case '1':
 				matricola=login();
 				if(matricola!=NULL){
 					if( (controlloPrenotazioniStudente(matricola))>0 ){
 						gestisciPrenotazioni(matricola);
 					}else{
-						printf("Nessuna prenotazione in sospeso.\n");
 						richiestaPrestito(matricola);
 					}
-
-				}else{
-					printf("è null nnt prestito!\n");
 				}
 				pausa();
 				break;
 
-			case 2:
+			case '2':
 				matricola=login();
 				if(matricola!=NULL){
 					if(controlloPrestitiStudente(matricola)>0){
 						restituisciLibro(matricola);
 						printf("\nLibro restituito.\n");
 					}else{
-						printf("Non hai libri da restituire.\n");
+						printf("\nNon hai libri da restituire.\n");
 					}
 				}
 				pausa();
 				break;
 
-			case 3:
-				printf("Chiusura programma...\n");
-				esco=1;
+			case '3':
+				if(controllaUscita()>0){
+					esco=1;
+					printf("Uscita in corso...");
+				}else{
+					printf("\nATTENZIONE!!!\n"
+							"Ci sono ancora richieste di prestito o prenotazioni non risolte!\n"
+							"Impossibile chiudere il sistema.\n");
+					//scelta=0;
+				}
+				pausa();
 				break;
 
-			case 4:
+			case '4':
 				visualizzaListaLibri();
 				visualizzaListaStudenti();
 				visualizzaListaPrestiti();
@@ -81,7 +85,7 @@ void menuBiblioteca(){
 
 			default:
 				printf("Comando errato, ritenta.\n");
-				scelta=0;
+				//scelta=0;
 				pausa();
 				break;
 
@@ -89,7 +93,13 @@ void menuBiblioteca(){
 		}
 	printf("Chiusura programma...");
 }
-
+int controllaUscita(){
+	if(listaPrestiti==NULL && listaPrenotazioni==NULL){
+		return 1;
+	}else{
+		return 0;
+	}
+}
 void pausa(){
 	printf("\nPremi il tasto INVIO per continuare...");
 	getchar();
@@ -162,7 +172,7 @@ void restituisciLibro(char *matricola){
 	printf("\n----RESTITUZIONE LIBRO----\n\n");
 	printf("Quale libro vuoi restituire?\n\n");
 	printf("I tuoi prestiti:\n");
-	printf("ID	Titolo		Autore		\n");
+	printf("CODICE	Titolo		Autore		\n");
 	stampaPrestati(matricola);
 	printf("\nInserisci il codice corrispondente.\n");
 	printf("codice libro >");
@@ -171,7 +181,7 @@ void restituisciLibro(char *matricola){
 
 	if(controlloPrenotazioniLibro(scelta)==0){
 		if(impostaDisponibilitaLibro(scelta)==0){
-			printf("!!!Errore. Non ho trovato il libro\n");
+			printf("!!!Errore. Non ho trovato il libro.\n");
 		}
 
 	}
@@ -215,7 +225,7 @@ void stampaPrestati(char *matricola){
 	testa=listaPrestiti;
 
 	if(listaPrestiti==NULL){
-		printf("Al momento non ci sono prestiti.\n");
+		printf("\nAl momento non ci sono prestiti.\n");
 	}else{
 		while(listaPrestiti!=NULL){
 			if( strcmp(listaPrestiti->p.matricolaStudente,matricola)==0 ){
@@ -262,7 +272,6 @@ void gestisciPrenotazioni(char *matricola){
 				break;
 
 			case 2:
-				printf("caso2\n");
 				richiestaPrestito(matricola);
 				esco=1;
 				break;
@@ -279,7 +288,7 @@ void gestisciPrenotazioni(char *matricola){
 void risolviRichiesteStudente(char *matricola){
 	int scelta;
 	printf("\nLe tue prenotazioni:\n");
-	printf("ID	Titolo		Autore		\n");
+	printf("CODICE	Titolo		Autore		\n");
 	stampaPrenotazioniStudente(matricola);
 	printf("\nInserisci un codice di un libro per controllare se è tornato disponibile.\n");
 	printf("codice >");
@@ -291,7 +300,7 @@ void risolviRichiesteStudente(char *matricola){
 void rimuoviPrenotazione(Prestito pr){
 	struct elementoPrestito *s;
 	struct elementoPrestito *daEliminare;
-	if(listaPrenotazioni==NULL)	printf("Nulla da eliminare.\n");
+	if(listaPrenotazioni==NULL)	printf("\nNulla da eliminare.\n");
 	if(listaPrenotazioni->next!=NULL){
 			s=listaPrenotazioni;
 			while(s->next!=NULL){
@@ -321,14 +330,14 @@ void controlloPrenotazioneLibroStudente(int libro,char *matricola){
 	int scelta=0;
 
 	if(listaLibri==NULL){
-		printf("Al momento non ci sono libri.\n");
+		printf("\nAl momento non ci sono libri.\n");
 	}else{
 		while(listaLibri!=NULL){
 			if( listaLibri->l.id==libro ){
 				if( strcmp(listaLibri->l.prossimoPrenotato,matricola)==0 ){
 					p.codiceLibro=libro;
 					strcpy(p.matricolaStudente,matricola);
-					printf("\nIl libro è tornato disponibile, vuoi procetere col prestito?\n");
+					printf("\nLibro disponibile!\n\nVuoi procedere col prestito?\n");
 					printf("1-Si.\n"
 						   "2-Indietro.\n");
 					printf("scelta >");
@@ -342,7 +351,7 @@ void controlloPrenotazioneLibroStudente(int libro,char *matricola){
 						return;
 					}
 				}else{
-					printf("\nIl libro non è ancora tornato disponibile.\n");
+					printf("\nLibro non ancora disponibile.\n");
 					listaLibri=testa;
 					return;
 				}
@@ -361,7 +370,7 @@ void stampaPrenotazioniStudente(char *matricola){
 	testa=listaPrenotazioni;
 
 		if(listaPrenotazioni==NULL){
-			printf("Al momento non ci sono prenotazioni.\n");
+			printf("\nAl momento non ci sono prenotazioni.\n");
 		}else{
 			while(listaPrenotazioni!=NULL){
 				if( strcmp(listaPrenotazioni->p.matricolaStudente,matricola)==0 ){
@@ -445,13 +454,13 @@ void approvaPrestito(int libro,char *matricola){
 	p.codiceLibro=libro;
 	strcpy(p.matricolaStudente,matricola);
 	if( controlloDisponibilitaLibro(libro)>0 ){
-		printf("Il libro è disponibile.\n");
+		printf("Libro disponibile..\n");
 		aggiungiPrestito(p);
-		printf("Prestito effettutato correttamente!\n");
+		printf("\nPrestito effettutato correttamente!\n");
 	}else{
-		printf("ATTENZIONE!!!\nIl libro non è disponibile al momento.\n"
+		printf("ATTENZIONE!!!\nIl libro non è disponibile al momento.\n\n"
 						"E' possibile richiedere una prenotazione oppure "
-						"tornare indietro e scegliere un altro libro selezionando una delle seguenti opzioni:\n"
+						"tornare indietro e scegliere un altro libro selezionando una delle seguenti opzioni:\n\n"
 						"1-Prenota libro.\n"
 						"2-Torna al menù principale.\n"
 						"scelta >");
@@ -459,7 +468,7 @@ void approvaPrestito(int libro,char *matricola){
 		printf("\n");
 		if(scelta==1){
 			aggiungiPrenotazione(p);
-			printf("Libro prenotato correttamente!\n");
+			printf("\nLibro prenotato correttamente!\n");
 		}
 
 	}
@@ -468,9 +477,9 @@ void approvaPrestito(int libro,char *matricola){
 void visualizzaListaPrenotazioni(){
 	struct elementoPrestito *testa;
 	testa=listaPrenotazioni;
-	printf("Prenotazioni effettuate in questo momento:\n");
+	printf("\n\nPrenotazioni effettuate in questo momento:\n");
 	if(listaPrenotazioni==NULL){
-		printf("Al momento non ci sono prenotazioni.\n");
+		printf("-Al momento non ci sono prenotazioni.\n");
 	}else{
 		while(listaPrenotazioni!=NULL){
 			printf("%d	",listaPrenotazioni->p.codiceLibro);
@@ -507,27 +516,21 @@ void richiestaPrestito(char *matricola){
 	int codiceLibro;
 	system("clear");
 	printf("\n----RICHIESTA PRESTITO----\n");
-	printf("1-Cerca libro tramite parola chiave.\n");
-	printf("2-Visualizza tutti i libri in ordine alfabetico.\n");
-	printf("3-Annulla richiesta.\n");
+	printf("1-Visualizza libri.\n");
+	printf("2-Annulla richiesta.\n");
 	printf("Scelta >");
 	scanf("%d",&scelta);
 	while(esco!=1){
 		switch(scelta){
 			case 1:
-				printf("Inserisci parola chiave >");
-				esco=1;
-				break;
-
-			case 2:
 				visualizzaListaLibri();
-				printf("\nInserisci l'ID del libro scelto >");
+				printf("\nInserisci il codice del libro scelto >");
 				scanf("%d",&codiceLibro);
 				approvaPrestito(codiceLibro,matricola);
 				esco=1;
 				break;
 
-			case 3:
+			case 2:
 				esco=1;
 				break;
 
@@ -543,9 +546,9 @@ void richiestaPrestito(char *matricola){
 void visualizzaListaPrestiti(){
 	struct elementoPrestito *testa;
 	testa=listaPrestiti;
-	printf("Prestiti effettuati in questo momento:\n");
+	printf("\n\nPrestiti effettuati in questo momento:\n");
 	if(listaPrestiti==NULL){
-		printf("Al momento non ci sono prestiti.\n");
+		printf("-Al momento non ci sono prestiti.\n");
 	}else{
 		while(listaPrestiti!=NULL){
 			printf("%d	",listaPrestiti->p.codiceLibro);
@@ -585,9 +588,18 @@ char* registrazione(){
 		matricolaUpper[i]=toupper(matricola[i]);
 	}
 	strcpy(s.matricola,matricolaUpper);
-	aggiungiStudente(s);
-	printf("\nRegistrazione avvenuta con successo!\n");
-	return matricolaUpper;
+	if(cercaStudente(matricolaUpper)>0){
+		printf("ATTENZIONE!!!\n"
+				"La matricola inserita risulta gia registrata.");
+		return NULL;
+	}else{
+		aggiungiStudente(s);
+		printf("\nRegistrazione avvenuta con successo!\n");
+		return matricolaUpper;
+	}
+
+
+
 }
 
 int eliminaNewLine(char *stringa){
@@ -619,6 +631,7 @@ int cercaStudente(char *matricola){
 char* login(){
 	char *matricola=malloc(sizeof(char));
 	int scelta=0;
+	char comando[1];
 
 	printf("\nInserire  matricola >");
 	scanf("%s",matricola);
@@ -632,10 +645,16 @@ char* login(){
 		printf("1-Si.\n"
 				"2-No.\n"
 				"scelta >");
-		scanf("%d",&scelta);
-		if(scelta==1){
+		scanf("%s",comando);
+		scelta=comando[0];
+		if(scelta=='1'){
 			matricola=registrazione();
-			if(matricola!=NULL)return matricola;
+			if(matricola!=NULL){
+				return matricola;
+			}else{
+				return NULL;
+			}
+
 		}else{
 			printf("\nNon potrai usufruire dei servizi di BIBLIOTECA se non sei registrato.\n");
 			return NULL;
@@ -648,13 +667,11 @@ char* login(){
 void visualizzaListaLibri(){
 	struct elementoLibro *testa;
 	testa=listaLibri;
-	printf("\nATTENZIONE!!!\nAlcuni libri potrebbero non essere disponibili perchè in prestito ad altri studenti.\n");
-	printf("Tuttavia è possibile prenotarsi per avere il libro in esclusiva non appena risulta disponibile!\n");
 
 	printf("\nLISTA LIBRI:\n");
-	printf("ID	Titolo		Autore		Disopnibilità\n");
+	printf("CODICE	Titolo		Autore		Disopnibilità\n");
 	if(listaLibri==NULL){
-		printf("Al momento non sono presenti libri disponibili al prestito.\n");
+		printf("-Al momento non sono presenti libri disponibili al prestito.\n");
 	}else{
 		while(listaLibri!=NULL){
 			printf("%d	",listaLibri->l.id);
@@ -666,6 +683,9 @@ void visualizzaListaLibri(){
 		}
 	}
 	listaLibri=testa;
+	printf("\nATTENZIONE!!!\nAlcuni libri potrebbero non essere disponibili perchè in prestito ad altri studenti.\n");
+	printf("Tuttavia è possibile prenotarsi per avere il libro in esclusiva non appena risulta disponibile!\n");
+
 }
 
 void aggiungiLibro(Libro libro){
@@ -710,9 +730,9 @@ void aggiungiStudente(Studente studente){
 void visualizzaListaStudenti(){
 	struct elementoStudente *testa;
 	testa=listaStudenti;
-	printf("Studenti registrati in questo momento:\n");
+	printf("\n\nStudenti registrati in questo momento:\n");
 	if(listaStudenti==NULL){
-		printf("Al momento non sono presenti studenti registrati.\n");
+		printf("-Al momento non sono presenti studenti registrati.\n");
 	}else{
 		while(listaStudenti!=NULL){
 			printf("%s ",listaStudenti->s.matricola);
@@ -733,15 +753,15 @@ void creaListaLibri(){
 	Libro libro4={4,"Harry Potter 4","J. K. Rowling",1,"NULL"};
 	Libro libro5={5,"Harry Potter 5","J. K. Rowling",1,"NULL"};
 	Libro libro6={6,"Harry Potter 6","J. K. Rowling",1,"NULL"};
-	Libro libro7={7,"Harry Potter 7","J. K. Rowling",0,"NULL"};
-	Libro libro8={8,"Harry il","J. K. Rowling",1,"NULL"};
-	Libro libro9={9,"Harry","J. K. Rowling",1,"NULL"};
-	Libro libro10={10,"Harry Potter 10","J. K. Rowling",1,"NULL"};
-	Libro libro11={11,"Harry Potter 11","J. K. Rowling",1,"NULL"};
-	Libro libro12={12,"Harry Potter 12","J. K. Rowling",0,"NULL"};
-	Libro libro13={13,"Harry Potter 13","J. K. Rowling",1,"NULL"};
-	Libro libro14={14,"Harry Potter","J. K. Rowling",1,"NULL"};
-	Libro libro15={15,"Harry Potteriiiii","J. K. Rowling",1,"NULL"};
+	Libro libro7={7,"Harry Potter 7","J. K. Rowling",1,"NULL"};
+	Libro libro8={8,"Biancaneve e i 7 nani","Disney",1,"NULL"};
+	Libro libro9={9,"Il processo","Kafka",1,"NULL"};
+	Libro libro10={10,"Guerra e Pace","Lev Nikolaevic",1,"NULL"};
+	Libro libro11={11,"Moby Dick","Herman Melville",1,"NULL"};
+	Libro libro12={12,"Il barone rampante","Italo Calvino",1,"NULL"};
+	Libro libro13={13,"La montagna incantata","Thomas Mann",1,"NULL"};
+	Libro libro14={14,"Il deserto dei tartari","Dino Buzzati",1,"NULL"};
+	Libro libro15={15,"Harry Potter il ritorno","J. K. Rowling",1,"NULL"};
 
 	aggiungiLibro(libro1);
 	aggiungiLibro(libro2);

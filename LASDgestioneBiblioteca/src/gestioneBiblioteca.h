@@ -48,9 +48,9 @@ void menuBiblioteca();
 
 char* login();
 char* registrazione();
-void risolviRichiesteStudente(char *s);
 void creaListaLibri();
 void pausa();
+int controllaUscita();
 
 void visualizzaListaLibri();
 void aggiungiLibro(Libro l);
